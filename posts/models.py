@@ -17,3 +17,10 @@ class Post(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='like_posts')
+
+class Comment(models.Model):
+    content = models.TextField()
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    # article_id = 장고가 자동으로 추가해주는 컬럼
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # user_id = 장고가 자동으로 추가해주는 컬럼

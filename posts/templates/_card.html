@@ -1,3 +1,4 @@
+{% load bootstrap5 %}
     <div class="card my-3 col-12 col-md-6">
         <div class="card-header">
             {% if post.user.profile_image %}
@@ -9,13 +10,28 @@
         </div>
         <img src="{{ post.image.url }}" alt="">
         <div class="card-body">
-            <a href="{% url 'posts:likes' id=post.id %}" class="text-reset text-decoration-none">
                 {% if user in post.like_users.all %}
-                    <i class="bi bi-heart-fill" style="color: red;"></i>
+                    <i class="bi bi-heart-fill heart" style="color: red;" data-post-id="{{ post.id }}">{{ post.like_users.all|length }}</i>
                 {% else %}
-                    <i class="bi bi-heart"></i>
+                    <i class="bi bi-heart heart" data-post-id="{{ post.id }}">{{ post.like_users.all|length }}</i>
                 {% endif %}
-            </a> {{ post.like_users.all|length }}명이 좋아합니다.
-            <p class="card-text">{{ post.content }}</p>
+            명이 좋아합니다.
+            
+            {% if user.is_authenticated %}
+            <form action="{% url 'posts:comment_create' post_id=post.id %}" method="POST">
+            {% csrf_token %}
+            {% bootstrap_form form show_label=False %} 
+            <input type="submit" style="float: right;">
+            </form>
+
+            {% endif %}
+            {% for comment in post.comment_set.all %}
+            <li>
+                {{ comment.user }} : {{ comment.content }}
+                {% if user == comment.user %}
+                <a href="{% url 'posts:comment_delete' post_id=post.id id=comment.id %}">delete</a>
+                {% endif %}
+            </li>
+            {% endfor %}
         </div>
     </div>

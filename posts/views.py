@@ -1,15 +1,17 @@
 from django.shortcuts import render, redirect
-from . models import Post
-from .forms import PostForm
+from . models import Post, Comment
+from .forms import PostForm, CommentForm
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 
 def index(request):
     posts = Post.objects.all().order_by('-id')
+    form = CommentForm()
 
     context = {
         'posts': posts,
+        'form': form,
     }
 
     return render(request, 'index.html', context)
@@ -44,7 +46,52 @@ def likes(request, id):
     else:
         post.like_users.add(user)
         # user.like_posts.add(post)
+
+    return redirect('posts:index')
+
+
+from django.http import JsonResponse
+def likes_async(request, id):
+    user = request.user
+    post = Post.objects.get(id=id)
+
+    if user in post.like_users.all():
+        post.like_users.remove(user)
+        status = False
+    else:
+        post.like_users.add(user)
+        status = True
+
+    context = {
+        'status': status,
+        'count' : len(post.like_users.all())
+    }
+
+    return JsonResponse(context)
         
 
+
+    
+
+def comment_create(request, post_id):
+    form = CommentForm(request.POST)
+   
+
+    if form.is_valid():
+        comment = form.save(commit=False)
+
+        comment.user_id = request.user.id
+        comment.post_id = post_id
+
+        comment.save()
+
+        return redirect('posts:index')
+    
+@login_required
+def comment_delete(request, post_id, id):
+    comment = Comment.objects.get(id=id)
+
+    if request.user == comment.user: 
+        comment.delete()
 
     return redirect('posts:index')
