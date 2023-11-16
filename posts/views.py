@@ -69,10 +69,6 @@ def likes_async(request, id):
 
     return JsonResponse(context)
         
-
-
-    
-
 def comment_create(request, post_id):
     form = CommentForm(request.POST)
    

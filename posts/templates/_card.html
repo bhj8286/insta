@@ -1,5 +1,5 @@
 {% load bootstrap5 %}
-    <div class="card my-3 col-12 col-md-6">
+    <div class="card my-4 col-7 col-md-5 m-5" style="border: 4px solid black;">
         <div class="card-header">
             {% if post.user.profile_image %}
                 <img src="{{ post.user.profile_image.url }}" alt="" class="rounded-circle" width="30px">
@@ -9,7 +9,7 @@
             <a href="{% url 'accounts:profile' username=post.user %}" class="text-reset text-decoration-none">{{ post.user }}</a>
         </div>
         <img src="{{ post.image.url }}" alt="">
-        <div class="card-body">
+        <div class="card-body" style="color: dimgray">
                 {% if user in post.like_users.all %}
                     <i class="bi bi-heart-fill heart" style="color: red;" data-post-id="{{ post.id }}">{{ post.like_users.all|length }}</i>
                 {% else %}
@@ -18,18 +18,29 @@
             명이 좋아합니다.
             
             {% if user.is_authenticated %}
-            <form action="{% url 'posts:comment_create' post_id=post.id %}" method="POST">
+            <form id="form{{post.id}}"  action="{% url 'posts:comment_create' post_id=post.id %}" method="POST">
             {% csrf_token %}
             {% bootstrap_form form show_label=False %} 
-            <input type="submit" style="float: right;">
+            <i id="input1" class="bi bi-send" onclick="document.querySelector('#form{{post.id}}').submit()" style="float: right;"></i>
+            <style>
+                #input1 {
+                    background-color: black;
+                    color: aliceblue;
+                    border: 3px solid dimgray;
+                    border-radius: 5px;
+                    padding: 3px;
+                    padding-left: 15px;
+                    padding-right: 15px;
+                }
+            </style>
             </form>
-
             {% endif %}
+            <br>
             {% for comment in post.comment_set.all %}
-            <li>
+            <li style="list-style: none;">
                 {{ comment.user }} : {{ comment.content }}
                 {% if user == comment.user %}
-                <a href="{% url 'posts:comment_delete' post_id=post.id id=comment.id %}">delete</a>
+                <a href="{% url 'posts:comment_delete' post_id=post.id id=comment.id %}"><button type="button" class="btn btn-outline-danger" style="--bs-btn-padding-y: .17rem; --bs-btn-padding-x: .4rem; --bs-btn-font-size: .70rem;"><b>Delete</b></button></a>
                 {% endif %}
             </li>
             {% endfor %}
